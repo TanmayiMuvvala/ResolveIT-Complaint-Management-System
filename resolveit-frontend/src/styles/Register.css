@@ -1,0 +1,151 @@
+/* Register.css */
+
+.register-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.register-card {
+  padding: 50px 40px;
+  width: 100%;
+  max-width: 450px;
+  position: relative;
+  overflow: hidden;
+}
+
+.register-decorative-element {
+  position: absolute;
+  top: -50px;
+  left: -50px;
+  width: 100px;
+  height: 100px;
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  border-radius: 50%;
+  opacity: 0.1;
+}
+
+.register-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.register-icon {
+  font-size: 3rem;
+  margin-bottom: 15px;
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.register-title {
+  color: #333;
+  margin-bottom: 10px;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.register-subtitle {
+  color: #666;
+  font-size: 16px;
+}
+
+.register-form {
+  margin-bottom: 25px;
+}
+
+.register-form-group {
+  margin-bottom: 25px;
+}
+
+.register-form-group:last-child {
+  margin-bottom: 30px;
+}
+
+.register-submit-button {
+  width: 100%;
+  margin-bottom: 25px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.register-loading-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.register-loading-spinner {
+  margin-right: 10px;
+}
+
+.password-requirements {
+  background: rgba(17, 153, 142, 0.1);
+  border: 1px solid rgba(17, 153, 142, 0.2);
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 25px;
+}
+
+.password-requirements-title {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  color: #11998e;
+  font-weight: 600;
+}
+
+.password-requirements-list {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 12px;
+  color: #666;
+  line-height: 1.5;
+}
+
+.register-nav-section {
+  text-align: center;
+}
+
+.register-nav-text {
+  margin: 0 0 15px 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.register-login-button {
+  padding: 12px 25px;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.register-back-link {
+  text-align: center;
+  margin-top: 25px;
+}
+
+.register-back-link a {
+  font-size: 14px;
+  color: #999;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .register-container {
+    padding: 15px;
+  }
+  
+  .register-card {
+    padding: 30px 25px;
+  }
+  
+  .register-title {
+    font-size: 1.5rem;
+  }
+  
+  .register-icon {
+    font-size: 2.5rem;
+  }
+}

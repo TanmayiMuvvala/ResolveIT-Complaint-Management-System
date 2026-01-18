@@ -1,0 +1,148 @@
+/* Login.css */
+
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.login-card {
+  padding: 50px 40px;
+  width: 100%;
+  max-width: 450px;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-decorative-element {
+  position: absolute;
+  top: -50px;
+  right: -50px;
+  width: 100px;
+  height: 100px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 50%;
+  opacity: 0.1;
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.login-icon {
+  font-size: 3rem;
+  margin-bottom: 15px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.login-title {
+  color: #333;
+  margin-bottom: 10px;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.login-subtitle {
+  color: #666;
+  font-size: 16px;
+}
+
+.login-form {
+  margin-bottom: 25px;
+}
+
+.login-form-group {
+  margin-bottom: 25px;
+}
+
+.login-form-group:last-child {
+  margin-bottom: 30px;
+}
+
+.login-submit-button {
+  width: 100%;
+  margin-bottom: 25px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.login-loading-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-loading-spinner {
+  margin-right: 10px;
+}
+
+.login-forgot-password {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.login-forgot-link {
+  font-size: 14px;
+}
+
+.login-nav-section {
+  text-align: center;
+}
+
+.login-nav-text {
+  margin: 0 0 15px 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.login-register-button {
+  padding: 12px 25px;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.login-officer-section {
+  text-align: center;
+  margin-top: 25px;
+}
+
+.login-officer-button {
+  padding: 12px 25px;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.login-back-link {
+  text-align: center;
+  margin-top: 25px;
+}
+
+.login-back-link a {
+  font-size: 14px;
+  color: #999;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .login-container {
+    padding: 15px;
+  }
+  
+  .login-card {
+    padding: 30px 25px;
+  }
+  
+  .login-title {
+    font-size: 1.5rem;
+  }
+  
+  .login-icon {
+    font-size: 2.5rem;
+  }
+}
