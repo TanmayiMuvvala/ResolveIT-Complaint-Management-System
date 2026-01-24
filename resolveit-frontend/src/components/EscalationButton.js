@@ -1,37 +1,50 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import api from '../services/api';
+import { useUIState } from '../hooks/useUIState';
+import UIStateMessage from './UIStateMessage';
 
 export default function EscalationButton({ complaintId, onEscalated }) {
   const [showModal, setShowModal] = useState(false);
   const [reason, setReason] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const uiState = useUIState();
 
   const handleEscalate = async () => {
     if (!reason.trim()) {
-      setError('Please provide a reason for escalation');
+      uiState.setError('Please provide a reason for escalation');
       return;
     }
 
-    setLoading(true);
-    setError('');
+    uiState.setLoading();
 
     try {
       const res = await api.post(`/api/escalations/${complaintId}`, { reason });
       
       if (res.data.status === 'success') {
-        alert('Complaint escalated successfully!');
-        setShowModal(false);
-        setReason('');
-        if (onEscalated) onEscalated();
+        uiState.setSuccess('Complaint escalated successfully!');
+        setTimeout(() => {
+          setShowModal(false);
+          setReason('');
+          uiState.reset();
+          if (onEscalated) onEscalated();
+        }, 2000);
       } else {
-        setError(res.data.message);
+        uiState.setError(res.data.message);
       }
     } catch (err) {
-      setError('Failed to escalate complaint. Please try again.');
-    } finally {
-      setLoading(false);
+      uiState.setError('Failed to escalate complaint. Please try again.');
+    }
+  };
+
+  const handleRetry = () => {
+    uiState.reset();
+  };
+
+  const handleCloseModal = () => {
+    if (!uiState.isLoading) {
+      setShowModal(false);
+      setReason('');
+      uiState.reset();
     }
   };
 
@@ -57,7 +70,7 @@ export default function EscalationButton({ complaintId, onEscalated }) {
       {showModal && createPortal(
         <>
           <div
-            onClick={() => setShowModal(false)}
+            onClick={handleCloseModal}
             style={{
               position: 'fixed',
               top: 0,
@@ -95,19 +108,11 @@ export default function EscalationButton({ complaintId, onEscalated }) {
               Escalate to senior management. Provide reason:
             </p>
 
-            {error && (
-              <div style={{ 
-                background: '#ffebee', 
-                color: '#c62828', 
-                padding: '12px', 
-                borderRadius: '8px', 
-                marginBottom: '20px',
-                fontSize: '14px',
-                textAlign: 'center'
-              }}>
-                {error}
-              </div>
-            )}
+            <UIStateMessage 
+              state={uiState.state} 
+              message={uiState.message} 
+              onRetry={handleRetry}
+            />
 
             <textarea
               value={reason}
@@ -125,6 +130,7 @@ export default function EscalationButton({ complaintId, onEscalated }) {
                 fontFamily: 'inherit',
                 resize: 'none'
               }}
+              disabled={uiState.isLoading || uiState.isSuccess}
             />
 
             <div style={{ 
@@ -133,14 +139,15 @@ export default function EscalationButton({ complaintId, onEscalated }) {
               justifyContent: 'center'
             }}>
               <button
-                onClick={() => setShowModal(false)}
+                onClick={handleCloseModal}
+                disabled={uiState.isLoading}
                 style={{
                   padding: '12px 24px',
-                  background: '#666',
+                  background: uiState.isLoading ? '#ccc' : '#666',
                   color: 'white',
                   border: 'none',
                   borderRadius: '8px',
-                  cursor: 'pointer',
+                  cursor: uiState.isLoading ? 'not-allowed' : 'pointer',
                   fontSize: '16px',
                   fontWeight: 'bold'
                 }}
@@ -150,20 +157,20 @@ export default function EscalationButton({ complaintId, onEscalated }) {
               
               <button
                 onClick={handleEscalate}
-                disabled={loading}
+                disabled={uiState.isLoading || uiState.isSuccess}
                 style={{
                   padding: '12px 24px',
-                  background: loading ? '#ccc' : '#ff4444',
+                  background: (uiState.isLoading || uiState.isSuccess) ? '#ccc' : '#ff4444',
                   color: 'white',
                   border: 'none',
                   borderRadius: '8px',
-                  cursor: loading ? 'not-allowed' : 'pointer',
+                  cursor: (uiState.isLoading || uiState.isSuccess) ? 'not-allowed' : 'pointer',
                   fontSize: '16px',
                   fontWeight: 'bold',
                   minWidth: '120px'
                 }}
               >
-                {loading ? 'WAIT...' : 'ESCALATE NOW'}
+                {uiState.isLoading ? 'ESCALATING...' : uiState.isSuccess ? '✅ ESCALATED!' : 'ESCALATE NOW'}
               </button>
             </div>
           </div>

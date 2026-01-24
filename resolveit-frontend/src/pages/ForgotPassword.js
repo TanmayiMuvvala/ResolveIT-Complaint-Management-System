@@ -1,40 +1,42 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../services/api";
+import { useUIState } from "../hooks/useUIState";
+import UIStateMessage from "../components/UIStateMessage";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const uiState = useUIState();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setError("");
-    setMessage("");
+    uiState.setLoading();
 
     try {
       const res = await api.post("/auth/forgot-password", { email });
       
       if (res.data.status === "success") {
-        setMessage("Password reset instructions have been sent to your email.");
+        let successMessage = "Password reset instructions have been sent to your email.";
         // In development, show the token
         if (res.data.token) {
-          setMessage(prev => prev + ` (Dev token: ${res.data.token})`);
+          successMessage += ` (Dev token: ${res.data.token})`;
         }
+        uiState.setSuccess(successMessage);
       } else {
-        setError(res.data.message);
+        uiState.setError(res.data.message);
       }
     } catch (err) {
-      setError("Failed to send reset email. Please try again.");
-    } finally {
-      setLoading(false);
+      uiState.setError("Failed to send reset email. Please try again.");
     }
+  };
+
+  const handleRetry = () => {
+    uiState.reset();
   };
 
   return (
     <div className="animated-bg" style={{ 
+      background: "linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 50%, #a5b4fc 100%)",
       display: "flex", 
       justifyContent: "center", 
       alignItems: "center", 
@@ -86,17 +88,11 @@ export default function ForgotPassword() {
           </p>
         </div>
 
-        {message && (
-          <div className="alert-success">
-            {message}
-          </div>
-        )}
-
-        {error && (
-          <div className="alert-error">
-            {error}
-          </div>
-        )}
+        <UIStateMessage 
+          state={uiState.state} 
+          message={uiState.message} 
+          onRetry={handleRetry}
+        />
 
         <form onSubmit={handleSubmit}>
           <div style={{ marginBottom: "30px" }}>
@@ -107,12 +103,13 @@ export default function ForgotPassword() {
               onChange={(e) => setEmail(e.target.value)}
               className="modern-input"
               required
+              disabled={uiState.isLoading || uiState.isSuccess}
             />
           </div>
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={uiState.isLoading || uiState.isSuccess}
             className="btn-primary"
             style={{
               width: "100%",
@@ -121,11 +118,13 @@ export default function ForgotPassword() {
               fontWeight: "600"
             }}
           >
-            {loading ? (
+            {uiState.isLoading ? (
               <>
                 <span className="loading-spinner" style={{ marginRight: "10px" }}></span>
                 Sending...
               </>
+            ) : uiState.isSuccess ? (
+              "✅ Email Sent!"
             ) : (
               "Send Reset Link"
             )}

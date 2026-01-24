@@ -1,9 +1,12 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import api from "../services/api";
+import { useUIState } from "../hooks/useUIState";
+import UIStateMessage from "../components/UIStateMessage";
 
 export default function RegisterOfficer() {
   const nav = useNavigate();
+  const uiState = useUIState();
 
   const [data, setData] = useState({
     name: "",
@@ -12,24 +15,20 @@ export default function RegisterOfficer() {
     confirmPassword: ""
   });
 
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-
   const submit = async (e) => {
     e.preventDefault();
-    setError("");
 
     if (data.password !== data.confirmPassword) {
-      setError("Passwords do not match");
+      uiState.setError("Passwords do not match");
       return;
     }
 
     if (data.password.length < 6) {
-      setError("Password must be at least 6 characters long");
+      uiState.setError("Password must be at least 6 characters long");
       return;
     }
 
-    setLoading(true);
+    uiState.setLoading();
 
     try {
       const res = await api.post("/auth/register-officer", {
@@ -39,16 +38,18 @@ export default function RegisterOfficer() {
       });
 
       if (res.data.status === "success") {
-        alert("Officer registration successful! Please login.");
-        nav("/login");
+        uiState.setSuccess("Officer registration successful! Redirecting to login...");
+        setTimeout(() => nav("/login"), 2000);
       } else {
-        setError(res.data.message);
+        uiState.setError(res.data.message);
       }
     } catch (err) {
-      setError("Registration failed. Please try again.");
-    } finally {
-      setLoading(false);
+      uiState.setError("Registration failed. Please try again.");
     }
+  };
+
+  const handleRetry = () => {
+    uiState.reset();
   };
 
   return (
@@ -71,18 +72,11 @@ export default function RegisterOfficer() {
           Register as Officer
         </h2>
 
-        {error && (
-          <div style={{
-            backgroundColor: "#f8d7da",
-            color: "#721c24",
-            padding: "12px",
-            borderRadius: "4px",
-            marginBottom: "20px",
-            border: "1px solid #f5c6cb"
-          }}>
-            {error}
-          </div>
-        )}
+        <UIStateMessage 
+          state={uiState.state} 
+          message={uiState.message} 
+          onRetry={handleRetry}
+        />
 
         <form onSubmit={submit}>
           <div style={{ marginBottom: "20px" }}>
@@ -99,6 +93,7 @@ export default function RegisterOfficer() {
                 fontSize: "16px"
               }}
               required
+              disabled={uiState.isLoading || uiState.isSuccess}
             />
           </div>
 
@@ -116,6 +111,7 @@ export default function RegisterOfficer() {
                 fontSize: "16px"
               }}
               required
+              disabled={uiState.isLoading || uiState.isSuccess}
             />
           </div>
 
@@ -133,6 +129,7 @@ export default function RegisterOfficer() {
                 fontSize: "16px"
               }}
               required
+              disabled={uiState.isLoading || uiState.isSuccess}
             />
           </div>
 
@@ -150,25 +147,26 @@ export default function RegisterOfficer() {
                 fontSize: "16px"
               }}
               required
+              disabled={uiState.isLoading || uiState.isSuccess}
             />
           </div>
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={uiState.isLoading || uiState.isSuccess}
             style={{
               width: "100%",
               padding: "12px",
-              backgroundColor: loading ? "#6c757d" : "#17a2b8",
+              backgroundColor: (uiState.isLoading || uiState.isSuccess) ? "#6c757d" : "#17a2b8",
               color: "white",
               border: "none",
               borderRadius: "4px",
               fontSize: "16px",
-              cursor: loading ? "not-allowed" : "pointer",
+              cursor: (uiState.isLoading || uiState.isSuccess) ? "not-allowed" : "pointer",
               marginBottom: "15px"
             }}
           >
-            {loading ? "Registering..." : "Register as Officer"}
+            {uiState.isLoading ? "Registering..." : uiState.isSuccess ? "✅ Registration Complete!" : "Register as Officer"}
           </button>
         </form>
 

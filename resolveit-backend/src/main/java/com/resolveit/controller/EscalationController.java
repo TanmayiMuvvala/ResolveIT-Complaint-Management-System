@@ -45,18 +45,13 @@ public class EscalationController {
                 response.put("message", "Escalation reason is required");
                 return ResponseEntity.badRequest().body(response);
             }
-            
-            // Get the user who is escalating
             String email = auth.getName();
             User escalatedBy = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-            
             Escalation escalation = escalationService.escalateComplaint(complaintId, reason, escalatedBy);
-            
             response.put("status", "success");
             response.put("message", "Complaint escalated successfully");
             response.put("escalation", escalation);
-            
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             response.put("status", "error");

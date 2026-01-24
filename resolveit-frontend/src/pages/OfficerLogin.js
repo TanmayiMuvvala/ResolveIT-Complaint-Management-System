@@ -1,24 +1,23 @@
-import React, { useState, useContext } from "react";
+import { useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import api from "../services/api";
+import { useUIState } from "../hooks/useUIState";
+import UIStateMessage from "../components/UIStateMessage";
 
 export default function OfficerLogin() {
   const { login } = useContext(AuthContext);
   const nav = useNavigate();
+  const uiState = useUIState();
 
   const [data, setData] = useState({
     email: "",
     password: ""
   });
 
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-
   const submit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setError("");
+    uiState.setLoading();
 
     try {
       const res = await api.post("/auth/login", data);
@@ -28,23 +27,27 @@ export default function OfficerLogin() {
         
         // Check if user has officer or admin role
         if (userRoles.includes("ROLE_OFFICER") || userRoles.includes("ROLE_ADMIN")) {
+          uiState.setSuccess("Access granted! Redirecting to officer dashboard...");
           login(res.data.token, res.data.user);
-          nav("/officer-dashboard");
+          setTimeout(() => nav("/officer-dashboard"), 1500);
         } else {
-          setError("Access denied. Officer credentials required.");
+          uiState.setError("Access denied. Officer credentials required.");
         }
       } else {
-        setError(res.data.message);
+        uiState.setError(res.data.message);
       }
     } catch (err) {
-      setError("Login failed. Please try again.");
-    } finally {
-      setLoading(false);
+      uiState.setError("Login failed. Please try again.");
     }
+  };
+
+  const handleRetry = () => {
+    uiState.reset();
   };
 
   return (
     <div className="animated-bg" style={{ 
+      background: "linear-gradient(135deg, #dbeafe 0%, #bfdbfe 50%, #93c5fd 100%)",
       display: "flex", 
       justifyContent: "center", 
       alignItems: "center", 
@@ -117,11 +120,11 @@ export default function OfficerLogin() {
           </p>
         </div>
 
-        {error && (
-          <div className="alert-error">
-            {error}
-          </div>
-        )}
+        <UIStateMessage 
+          state={uiState.state} 
+          message={uiState.message} 
+          onRetry={handleRetry}
+        />
 
         <form onSubmit={submit}>
           <div style={{ marginBottom: "25px" }}>
@@ -132,6 +135,7 @@ export default function OfficerLogin() {
               onChange={e => setData({ ...data, email: e.target.value })}
               className="modern-input"
               required
+              disabled={uiState.isLoading || uiState.isSuccess}
             />
           </div>
 
@@ -143,12 +147,13 @@ export default function OfficerLogin() {
               onChange={e => setData({ ...data, password: e.target.value })}
               className="modern-input"
               required
+              disabled={uiState.isLoading || uiState.isSuccess}
             />
           </div>
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={uiState.isLoading || uiState.isSuccess}
             className="btn-officer"
             style={{
               width: "100%",
@@ -157,11 +162,13 @@ export default function OfficerLogin() {
               fontWeight: "600"
             }}
           >
-            {loading ? (
+            {uiState.isLoading ? (
               <>
                 <span className="loading-spinner" style={{ marginRight: "10px" }}></span>
                 Authenticating...
               </>
+            ) : uiState.isSuccess ? (
+              "✅ Access Granted!"
             ) : (
               "🔐 Access Officer Portal"
             )}

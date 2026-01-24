@@ -1,47 +1,52 @@
-import React, { useState, useContext } from "react";
+import { useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import api from "../services/api";
+import { useUIState } from "../hooks/useUIState";
+import UIStateMessage from "../components/UIStateMessage";
 import "../styles/Login.css";
 
 export default function Login() {
   const { login } = useContext(AuthContext);
   const nav = useNavigate();
+  const uiState = useUIState();
 
   const [data, setData] = useState({
     email: "",
     password: ""
   });
 
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-
   const submit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setError("");
+    uiState.setLoading();
 
     try {
       const res = await api.post("/auth/login", data);
 
       if (res.data.status === "success") {
+        uiState.setSuccess("Login successful! Redirecting...");
+        
         login(res.data.token, res.data.user);
         
-        // Role-based redirect
-        const userRoles = res.data.user.roles;
-        if (userRoles.includes("ROLE_OFFICER") || userRoles.includes("ROLE_ADMIN")) {
-          nav("/officer-dashboard");
-        } else {
-          nav("/dashboard");
-        }
+        // Role-based redirect after brief success display
+        setTimeout(() => {
+          const userRoles = res.data.user.roles;
+          if (userRoles.includes("ROLE_OFFICER") || userRoles.includes("ROLE_ADMIN")) {
+            nav("/officer-dashboard");
+          } else {
+            nav("/dashboard");
+          }
+        }, 1500);
       } else {
-        setError(res.data.message);
+        uiState.setError(res.data.message);
       }
     } catch (err) {
-      setError("Login failed. Please try again.");
-    } finally {
-      setLoading(false);
+      uiState.setError("Login failed. Please try again.");
     }
+  };
+
+  const handleRetry = () => {
+    uiState.reset();
   };
 
   return (
@@ -62,11 +67,11 @@ export default function Login() {
           </p>
         </div>
 
-        {error && (
-          <div className="alert-error">
-            {error}
-          </div>
-        )}
+        <UIStateMessage 
+          state={uiState.state} 
+          message={uiState.message} 
+          onRetry={handleRetry}
+        />
 
         <form onSubmit={submit} className="login-form">
           <div className="login-form-group">
@@ -77,6 +82,7 @@ export default function Login() {
               onChange={e => setData({ ...data, email: e.target.value })}
               className="modern-input"
               required
+              disabled={uiState.isLoading || uiState.isSuccess}
             />
           </div>
 
@@ -88,19 +94,22 @@ export default function Login() {
               onChange={e => setData({ ...data, password: e.target.value })}
               className="modern-input"
               required
+              disabled={uiState.isLoading || uiState.isSuccess}
             />
           </div>
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={uiState.isLoading || uiState.isSuccess}
             className="btn-primary login-submit-button"
           >
-            {loading ? (
+            {uiState.isLoading ? (
               <div className="login-loading-content">
                 <span className="loading-spinner login-loading-spinner"></span>
                 Signing in...
               </div>
+            ) : uiState.isSuccess ? (
+              "✅ Success!"
             ) : (
               "Sign In"
             )}

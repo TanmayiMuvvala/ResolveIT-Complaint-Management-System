@@ -1,4 +1,14 @@
-/* Home.css */
+/* Home.css - Professional Pastel Background */
+
+.animated-bg.home-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 25%, #99f6e4 50%, #5eead4 75%, #2dd4bf 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
 
 .home-container {
   min-height: 100vh;
@@ -34,7 +44,7 @@
 
 .home-subtitle {
   font-size: 1.3rem;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(71, 85, 105, 0.8);
   line-height: 1.6;
   max-width: 600px;
   margin: 0 auto;
@@ -56,11 +66,13 @@
 }
 
 .home-officer-section {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(10px);
   border-radius: 16px;
   padding: 30px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.8);
   margin-bottom: 40px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 }
 
 .home-officer-header {
@@ -74,14 +86,14 @@
 }
 
 .home-officer-title {
-  color: rgba(255, 255, 255, 0.95);
+  color: rgba(51, 65, 85, 0.9);
   margin-bottom: 10px;
   font-size: 1.2rem;
   font-weight: 600;
 }
 
 .home-officer-description {
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(71, 85, 105, 0.7);
   font-size: 14px;
   margin-bottom: 20px;
 }
@@ -99,17 +111,19 @@
 }
 
 .home-feature-card {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(10px);
   border-radius: 16px;
   padding: 30px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.8);
   transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 }
 
 .home-feature-card:hover {
   transform: translateY(-5px);
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
 }
 
 .home-feature-icon {
@@ -119,14 +133,14 @@
 }
 
 .home-feature-title {
-  color: rgba(255, 255, 255, 0.95);
+  color: rgba(51, 65, 85, 0.9);
   margin-bottom: 15px;
   font-size: 1.1rem;
   font-weight: 600;
 }
 
 .home-feature-list {
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(71, 85, 105, 0.8);
   list-style: none;
   font-size: 14px;
   line-height: 1.8;
@@ -149,19 +163,19 @@
 .home-stat-number {
   font-size: 2.5rem;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.95);
+  color: rgba(51, 65, 85, 0.9);
   margin-bottom: 5px;
 }
 
 .home-stat-label {
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(71, 85, 105, 0.8);
 }
 
 .home-footer {
   text-align: center;
   margin-top: 30px;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(71, 85, 105, 0.7);
   font-size: 14px;
 }
 

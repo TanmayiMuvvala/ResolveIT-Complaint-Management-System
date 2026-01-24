@@ -1,10 +1,13 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import api from "../services/api";
+import { useUIState } from "../hooks/useUIState";
+import UIStateMessage from "../components/UIStateMessage";
 import "../styles/Register.css";
 
 export default function Register() {
   const nav = useNavigate();
+  const uiState = useUIState();
 
   const [data, setData] = useState({
     name: "",
@@ -13,24 +16,20 @@ export default function Register() {
     confirmPassword: ""
   });
 
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-
   const submit = async (e) => {
     e.preventDefault();
-    setError("");
 
     if (data.password !== data.confirmPassword) {
-      setError("Passwords do not match");
+      uiState.setError("Passwords do not match");
       return;
     }
 
     if (data.password.length < 6) {
-      setError("Password must be at least 6 characters long");
+      uiState.setError("Password must be at least 6 characters long");
       return;
     }
 
-    setLoading(true);
+    uiState.setLoading();
 
     try {
       const res = await api.post("/auth/register", {
@@ -40,16 +39,18 @@ export default function Register() {
       });
 
       if (res.data.status === "success") {
-        alert("Registration successful! Please login.");
-        nav("/login");
+        uiState.setSuccess("Registration successful! Redirecting to login...");
+        setTimeout(() => nav("/login"), 2000);
       } else {
-        setError(res.data.message);
+        uiState.setError(res.data.message);
       }
     } catch (err) {
-      setError("Registration failed. Please try again.");
-    } finally {
-      setLoading(false);
+      uiState.setError("Registration failed. Please try again.");
     }
+  };
+
+  const handleRetry = () => {
+    uiState.reset();
   };
 
   return (
@@ -70,11 +71,11 @@ export default function Register() {
           </p>
         </div>
 
-        {error && (
-          <div className="alert-error">
-            {error}
-          </div>
-        )}
+        <UIStateMessage 
+          state={uiState.state} 
+          message={uiState.message} 
+          onRetry={handleRetry}
+        />
 
         <form onSubmit={submit} className="register-form">
           <div className="register-form-group">
@@ -85,6 +86,7 @@ export default function Register() {
               onChange={e => setData({ ...data, name: e.target.value })}
               className="modern-input"
               required
+              disabled={uiState.isLoading || uiState.isSuccess}
             />
           </div>
 
@@ -96,6 +98,7 @@ export default function Register() {
               onChange={e => setData({ ...data, email: e.target.value })}
               className="modern-input"
               required
+              disabled={uiState.isLoading || uiState.isSuccess}
             />
           </div>
 
@@ -107,6 +110,7 @@ export default function Register() {
               onChange={e => setData({ ...data, password: e.target.value })}
               className="modern-input"
               required
+              disabled={uiState.isLoading || uiState.isSuccess}
             />
           </div>
 
@@ -118,19 +122,22 @@ export default function Register() {
               onChange={e => setData({ ...data, confirmPassword: e.target.value })}
               className="modern-input"
               required
+              disabled={uiState.isLoading || uiState.isSuccess}
             />
           </div>
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={uiState.isLoading || uiState.isSuccess}
             className="btn-secondary register-submit-button"
           >
-            {loading ? (
+            {uiState.isLoading ? (
               <div className="register-loading-content">
                 <span className="loading-spinner register-loading-spinner"></span>
                 Creating Account...
               </div>
+            ) : uiState.isSuccess ? (
+              "✅ Account Created!"
             ) : (
               "Create Account"
             )}

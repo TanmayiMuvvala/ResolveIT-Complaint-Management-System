@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useUIState } from '../hooks/useUIState';
+import UIStateMessage from '../components/UIStateMessage';
 
 function RequestOfficerRole() {
     const [reason, setReason] = useState('');
-    const [message, setMessage] = useState('');
-    const [error, setError] = useState('');
-    const [loading, setLoading] = useState(false);
     const [myRequests, setMyRequests] = useState([]);
     const navigate = useNavigate();
+    const uiState = useUIState();
 
     useEffect(() => {
         fetchMyRequests();
@@ -38,32 +38,32 @@ function RequestOfficerRole() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError('');
-        setMessage('');
 
         if (!reason.trim()) {
-            setError('Please provide a reason for your request');
+            uiState.setError('Please provide a reason for your request');
             return;
         }
 
-        setLoading(true);
+        uiState.setLoading();
 
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.post(
+            await axios.post(
                 'http://localhost:8080/api/officer-requests',
                 { reason },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 
-            setMessage('Officer role request submitted successfully! You will be notified via email once reviewed.');
+            uiState.setSuccess('Officer role request submitted successfully! You will be notified via email once reviewed.');
             setReason('');
             fetchMyRequests();
         } catch (err) {
-            setError(err.response?.data?.message || 'Failed to submit request. Please try again.');
-        } finally {
-            setLoading(false);
+            uiState.setError(err.response?.data?.message || 'Failed to submit request. Please try again.');
         }
+    };
+
+    const handleRetry = () => {
+        uiState.reset();
     };
 
     const getStatusBadge = (status) => {
@@ -132,31 +132,11 @@ function RequestOfficerRole() {
                     Submit a request to become an officer and help manage complaints in your community.
                 </p>
 
-                {message && (
-                    <div style={{
-                        background: '#d4edda',
-                        color: '#155724',
-                        padding: '15px',
-                        borderRadius: '8px',
-                        marginBottom: '20px',
-                        border: '1px solid #c3e6cb'
-                    }}>
-                        {message}
-                    </div>
-                )}
-
-                {error && (
-                    <div style={{
-                        background: '#f8d7da',
-                        color: '#721c24',
-                        padding: '15px',
-                        borderRadius: '8px',
-                        marginBottom: '20px',
-                        border: '1px solid #f5c6cb'
-                    }}>
-                        {error}
-                    </div>
-                )}
+                <UIStateMessage 
+                    state={uiState.state} 
+                    message={uiState.message} 
+                    onRetry={handleRetry}
+                />
 
                 <form onSubmit={handleSubmit}>
                     <div style={{ marginBottom: '20px' }}>
@@ -183,25 +163,26 @@ function RequestOfficerRole() {
                                 resize: 'vertical'
                             }}
                             required
+                            disabled={uiState.isLoading || uiState.isSuccess}
                         />
                     </div>
 
                     <button
                         type="submit"
-                        disabled={loading}
+                        disabled={uiState.isLoading || uiState.isSuccess}
                         style={{
-                            background: loading ? '#ccc' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                            background: (uiState.isLoading || uiState.isSuccess) ? '#ccc' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                             color: 'white',
                             border: 'none',
                             padding: '15px 40px',
                             borderRadius: '8px',
                             fontSize: '1.1rem',
                             fontWeight: '600',
-                            cursor: loading ? 'not-allowed' : 'pointer',
+                            cursor: (uiState.isLoading || uiState.isSuccess) ? 'not-allowed' : 'pointer',
                             width: '100%'
                         }}
                     >
-                        {loading ? 'Submitting...' : '📤 Submit Request'}
+                        {uiState.isLoading ? 'Submitting...' : uiState.isSuccess ? '✅ Request Submitted!' : '📤 Submit Request'}
                     </button>
                 </form>
 

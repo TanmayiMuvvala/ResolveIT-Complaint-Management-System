@@ -1,32 +1,30 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import api from "../services/api";
+import { useUIState } from "../hooks/useUIState";
+import UIStateMessage from "../components/UIStateMessage";
 
 export default function ResetPassword() {
   const { token } = useParams();
   const nav = useNavigate();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const uiState = useUIState();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-    setMessage("");
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
+      uiState.setError("Passwords do not match");
       return;
     }
 
     if (password.length < 6) {
-      setError("Password must be at least 6 characters long");
+      uiState.setError("Password must be at least 6 characters long");
       return;
     }
 
-    setLoading(true);
+    uiState.setLoading();
 
     try {
       const res = await api.post("/auth/reset-password", {
@@ -35,17 +33,19 @@ export default function ResetPassword() {
       });
       
       if (res.data.status === "success") {
-        setMessage("Password reset successfully! Redirecting to login...");
+        uiState.setSuccess("Password reset successfully! Redirecting to login...");
         setTimeout(() => nav("/login"), 2000);
       } else {
-        setError(res.data.message);
+        uiState.setError(res.data.message);
       }
     } catch (err) {
       console.error("Reset password error:", err);
-      setError("Failed to reset password. Please try again.");
-    } finally {
-      setLoading(false);
+      uiState.setError("Failed to reset password. Please try again.");
     }
+  };
+
+  const handleRetry = () => {
+    uiState.reset();
   };
 
   return (
@@ -122,17 +122,11 @@ export default function ResetPassword() {
           </div>
         )}
 
-        {message && (
-          <div className="alert-success">
-            {message}
-          </div>
-        )}
-
-        {error && (
-          <div className="alert-error">
-            {error}
-          </div>
-        )}
+        <UIStateMessage 
+          state={uiState.state} 
+          message={uiState.message} 
+          onRetry={handleRetry}
+        />
 
         <form onSubmit={handleSubmit}>
           <div style={{ marginBottom: "25px" }}>
@@ -143,6 +137,7 @@ export default function ResetPassword() {
               onChange={(e) => setPassword(e.target.value)}
               className="modern-input"
               required
+              disabled={uiState.isLoading || uiState.isSuccess}
             />
           </div>
 
@@ -154,12 +149,13 @@ export default function ResetPassword() {
               onChange={(e) => setConfirmPassword(e.target.value)}
               className="modern-input"
               required
+              disabled={uiState.isLoading || uiState.isSuccess}
             />
           </div>
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={uiState.isLoading || uiState.isSuccess}
             className="btn-primary"
             style={{
               width: "100%",
@@ -168,11 +164,13 @@ export default function ResetPassword() {
               fontWeight: "600"
             }}
           >
-            {loading ? (
+            {uiState.isLoading ? (
               <>
                 <span className="loading-spinner" style={{ marginRight: "10px" }}></span>
                 Updating Password...
               </>
+            ) : uiState.isSuccess ? (
+              "✅ Password Updated!"
             ) : (
               "Update Password"
             )}
